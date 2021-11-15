@@ -1,13 +1,13 @@
 package ru.job4j.chat.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.job4j.chat.model.Message;
 import ru.job4j.chat.model.Person;
+import ru.job4j.chat.model.Role;
 import ru.job4j.chat.model.Room;
-import ru.job4j.chat.repository.MessageRepository;
-import ru.job4j.chat.repository.PersonRepository;
-import ru.job4j.chat.repository.RoomRepository;
+import ru.job4j.chat.repository.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,12 +19,14 @@ public class ChatService {
     private RoomRepository roomRepository;
     private MessageRepository messageRepository;
     private PersonRepository personRepository;
+    private RoleRepository roleRepository;
 
     public ChatService(RoomRepository roomRepository, MessageRepository messageRepository,
-                       PersonRepository personRepository) {
+                       PersonRepository personRepository, RoleRepository roleRepository) {
         this.roomRepository = roomRepository;
         this.messageRepository = messageRepository;
         this.personRepository = personRepository;
+        this.roleRepository = roleRepository;
     }
 
     public List<Room> findAllRooms() {
@@ -78,12 +80,20 @@ public class ChatService {
         messageRepository.delete(message);
     }
 
-    public Person verifyPerson(Person person) {
-        Person validPerson = personRepository.findByUsername(person.getUsername());
-        if (validPerson == null || !validPerson.getPassword().equals(person.getPassword())) {
-            throw new IllegalArgumentException("Invalid user");
-        }
-        return validPerson;
+    public void save(Person person) {
+        personRepository.save(person);
     }
 
+    public List<Person> findAll() {
+        return StreamSupport.stream(personRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
+    public Person findPersonByUsername(String username) {
+        return personRepository.findByUsername(username);
+    }
+
+    public Role findRoleByName(String name) {
+        return roleRepository.findByName(name);
+    }
 }

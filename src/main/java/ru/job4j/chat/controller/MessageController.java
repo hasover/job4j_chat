@@ -2,6 +2,7 @@ package ru.job4j.chat.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.chat.model.Message;
 import ru.job4j.chat.model.Person;
@@ -34,15 +35,17 @@ public class MessageController {
 
     @PostMapping("/")
     public ResponseEntity<Message> createNewMessage(@RequestBody Message message) {
-        Person verified = chatService.verifyPerson(message.getPerson());
-        message.setPerson(verified);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Person person = chatService.findPersonByUsername(username);
+        message.setPerson(person);
         return new ResponseEntity<>(chatService.createMessage(message), HttpStatus.CREATED);
     }
 
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Message message) {
-        Person verified = chatService.verifyPerson(message.getPerson());
-        message.setPerson(verified);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Person person = chatService.findPersonByUsername(username);
+        message.setPerson(person);
         chatService.editMassage(message);
         return ResponseEntity.ok().build();
     }
