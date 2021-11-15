@@ -56,7 +56,7 @@ public class ChatService {
     }
 
     public List<Message> findRoomMessages(int roomId) {
-        return messageRepository.findAllByRoom_Id(roomId);
+        return messageRepository.findAllByRoomId(roomId);
     }
 
     public Message  createMessage(Message message) {

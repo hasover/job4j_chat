@@ -1,5 +1,7 @@
 package ru.job4j.chat.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.Objects;
@@ -12,10 +14,10 @@ public class Message {
     private int id;
     private String name;
     private Date created = new Date();
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "person_id", nullable = false)
     private Person person;
 

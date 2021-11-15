@@ -7,8 +7,6 @@ import ru.job4j.chat.model.Message;
 import ru.job4j.chat.model.Person;
 import ru.job4j.chat.model.Room;
 import ru.job4j.chat.service.ChatService;
-
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -28,11 +26,8 @@ public class RoomController {
     @GetMapping("/{id}")
     public ResponseEntity<List<Message>> findRoomMessages(@PathVariable int id) {
         List<Message> messages = chatService.findRoomMessages(id);
-        if (messages.isEmpty()) {
-            return new ResponseEntity<>(Collections.EMPTY_LIST, HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(messages, HttpStatus.OK);
-        }
+        HttpStatus status = messages.isEmpty() ? HttpStatus.NOT_FOUND : HttpStatus.OK;
+        return new ResponseEntity<>(messages, status);
     }
 
     @PostMapping("/")
