@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.chat.model.Message;
-import ru.job4j.chat.model.Person;
 import ru.job4j.chat.model.Room;
 import ru.job4j.chat.service.ChatService;
 import java.util.List;
@@ -27,12 +27,18 @@ public class RoomController {
     @GetMapping("/{id}")
     public ResponseEntity<List<Message>> findRoomMessages(@PathVariable int id) {
         List<Message> messages = chatService.findRoomMessages(id);
-        HttpStatus status = messages.isEmpty() ? HttpStatus.NOT_FOUND : HttpStatus.OK;
-        return new ResponseEntity<>(messages, status);
+        if (messages.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "No messages found for room id= " + id);
+        }
+        return new ResponseEntity<>(messages, HttpStatus.OK);
     }
 
     @PostMapping("/")
     public ResponseEntity<Room> createNewRoom(@RequestBody Room room) {
+        if (room.getName() == null) {
+            throw new NullPointerException("Filed name must not be empty");
+        }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         room.setPerson(chatService.findPersonByUsername(username));
         return new ResponseEntity<>(chatService.createRoom(room), HttpStatus.CREATED);
@@ -40,6 +46,9 @@ public class RoomController {
 
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Room room) {
+        if (room.getName() == null) {
+            throw new NullPointerException("Filed name must not be empty");
+        }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         room.setPerson(chatService.findPersonByUsername(username));
         chatService.editRoom(room);

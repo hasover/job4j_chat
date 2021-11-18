@@ -3,6 +3,7 @@ package ru.job4j.chat.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.job4j.chat.exception.DuplicateUserException;
 import ru.job4j.chat.model.Message;
 import ru.job4j.chat.model.Person;
 import ru.job4j.chat.model.Role;
@@ -81,7 +82,12 @@ public class ChatService {
     }
 
     public void save(Person person) {
-        personRepository.save(person);
+        try {
+            personRepository.save(person);
+        } catch (Exception e) {
+            throw new DuplicateUserException("Person with username " + person.getUsername()
+                    + " already exists.");
+        }
     }
 
     public List<Person> findAll() {

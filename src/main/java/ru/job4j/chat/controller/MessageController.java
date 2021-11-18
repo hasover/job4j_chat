@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.chat.model.Message;
 import ru.job4j.chat.model.Person;
 import ru.job4j.chat.service.ChatService;
@@ -28,13 +29,17 @@ public class MessageController {
     public ResponseEntity<Message> findMessage(@PathVariable int id) {
         Optional<Message> message = chatService.findMessage(id);
         if (message.isEmpty()) {
-            throw new IllegalArgumentException("Message with id=" + id + " does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Message with id=" + id + " does not exist");
         }
         return new ResponseEntity<>(message.get(), HttpStatus.OK);
     }
 
     @PostMapping("/")
     public ResponseEntity<Message> createNewMessage(@RequestBody Message message) {
+        if (message.getName() == null) {
+            throw new NullPointerException("Field name must not be empty");
+        }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Person person = chatService.findPersonByUsername(username);
         message.setPerson(person);
@@ -43,6 +48,9 @@ public class MessageController {
 
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Message message) {
+        if (message.getName() == null) {
+            throw new NullPointerException("Field name must not be empty");
+        }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Person person = chatService.findPersonByUsername(username);
         message.setPerson(person);
