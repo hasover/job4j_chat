@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.chat.exception.DuplicateUserException;
@@ -34,18 +36,21 @@ public class UserController {
     }
 
     @PostMapping("/sign-up")
-    public void signUp(@RequestBody Person person) {
+    public ResponseEntity<Person> signUp(@RequestBody Person person) {
         if (person.getUsername() == null || person.getPassword() == null) {
             throw new NullPointerException("Fields username and password must not be empty!");
         }
         person.setPassword(encoder.encode(person.getPassword()));
         person.setRole(chatService.findRoleByName("ROLE_USER"));
         chatService.save(person);
+        return new ResponseEntity<>(person, HttpStatus.CREATED);
     }
 
     @GetMapping("/all")
-    public List<Person> findAll() {
-        return chatService.findAll();
+    public ResponseEntity<List<Person>> findAll() {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(chatService.findAll());
     }
 
     @ExceptionHandler(value = {DuplicateUserException.class})
