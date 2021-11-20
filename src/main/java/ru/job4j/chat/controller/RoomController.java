@@ -6,9 +6,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.chat.model.Message;
+import ru.job4j.chat.model.Person;
 import ru.job4j.chat.model.Room;
+import ru.job4j.chat.model.RoomDTO;
 import ru.job4j.chat.service.ChatService;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/room")
@@ -41,18 +44,39 @@ public class RoomController {
         }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         room.setPerson(chatService.findPersonByUsername(username));
-        return new ResponseEntity<>(chatService.createRoom(room), HttpStatus.CREATED);
+        return new ResponseEntity<>(chatService.save(room), HttpStatus.CREATED);
     }
 
     @PutMapping("/")
-    public ResponseEntity<Void> update(@RequestBody Room room) {
-        if (room.getName() == null) {
-            throw new NullPointerException("Filed name must not be empty");
+    public ResponseEntity<Void> update(@RequestBody RoomDTO roomDTO) {
+        if (roomDTO.getId() == 0 || roomDTO.getPersonId() == 0 || roomDTO.getName() == null) {
+            throw new NullPointerException("Fields id, name, personId must not be empty");
         }
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        room.setPerson(chatService.findPersonByUsername(username));
-        chatService.editRoom(room);
+        Room room = chatService.findRoomById(roomDTO.getId()).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
+        Person person = chatService.findPersonById(roomDTO.getPersonId())
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
+
+        room.setPerson(person);
+        room.setName(roomDTO.getName());
+        room.getMessages().clear();
+        chatService.save(room);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping
+    public Room edit(@RequestBody Map<String, String> map) {
+        String id = map.get("id");
+        String name = map.get("name");
+        if (id == null || name == null) {
+            throw new NullPointerException("Fields id and name must not be empty");
+        }
+        Room room = chatService.findRoomById(Integer.parseInt(id))
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
+        room.setName(name);
+        return chatService.save(room);
     }
 
     @DeleteMapping("/{id}")

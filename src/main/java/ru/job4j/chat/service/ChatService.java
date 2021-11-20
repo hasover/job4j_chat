@@ -1,6 +1,7 @@
 package ru.job4j.chat.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.job4j.chat.exception.DuplicateUserException;
@@ -35,14 +36,8 @@ public class ChatService {
                 .collect(Collectors.toList());
     }
 
-    public Room createRoom(Room room) {
+    public Room save(Room room) {
         return roomRepository.save(room);
-    }
-
-    @Transactional
-    public void editRoom(Room room) {
-        Optional<Room> roomFromStore = roomRepository.findById(room.getId());
-        roomFromStore.ifPresent(value -> value.setName(room.getName()));
     }
 
     public void deleteRoom(Room room) {
@@ -71,19 +66,17 @@ public class ChatService {
         return messageRepository.save(message);
     }
 
-    @Transactional
-    public void editMassage(Message message) {
-        Optional<Message> messageFromStore = messageRepository.findById(message.getId());
-        messageFromStore.ifPresent(value -> value.setName(message.getName()));
+    public Message save(Message message) {
+        return messageRepository.save(message);
     }
 
     public void deleteMessage(Message message) {
         messageRepository.delete(message);
     }
 
-    public void save(Person person) {
+    public Person save(Person person) {
         try {
-            personRepository.save(person);
+             return personRepository.save(person);
         } catch (Exception e) {
             throw new DuplicateUserException("Person with username " + person.getUsername()
                     + " already exists.");
@@ -99,7 +92,15 @@ public class ChatService {
         return personRepository.findByUsername(username);
     }
 
+    public Optional<Person> findPersonById(int id) {
+        return personRepository.findById(id);
+    }
+
     public Role findRoleByName(String name) {
         return roleRepository.findByName(name);
+    }
+
+    public Optional<Room> findRoomById(int roomId) {
+        return roomRepository.findById(roomId);
     }
 }

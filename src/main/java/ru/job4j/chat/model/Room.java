@@ -19,7 +19,7 @@ public class Room {
     @ManyToOne
     @JoinColumn(name = "person_id")
     private Person person;
-    @OneToMany(orphanRemoval = true, mappedBy = "room")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "room")
     @JsonIgnore
     private List<Message> messages = new ArrayList<>();
 

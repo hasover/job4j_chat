@@ -8,8 +8,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.chat.exception.DuplicateUserException;
 import ru.job4j.chat.model.Person;
+import ru.job4j.chat.model.PersonDTO;
 import ru.job4j.chat.service.ChatService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +53,19 @@ public class UserController {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(chatService.findAll());
+    }
+
+    @PatchMapping("/")
+    public Person editUser(@RequestBody PersonDTO personDTO) {
+        if (personDTO.getUsername() == null || personDTO.getName() == null) {
+            throw new NullPointerException("Fields username and name must not be empty!");
+        }
+        Person person = chatService.findPersonByUsername(personDTO.getUsername());
+        if (person == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        person.setName(personDTO.getName());
+        return chatService.save(person);
     }
 
     @ExceptionHandler(value = {DuplicateUserException.class})
