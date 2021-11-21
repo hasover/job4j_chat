@@ -10,6 +10,8 @@ import ru.job4j.chat.model.MessageDTO;
 import ru.job4j.chat.model.Person;
 import ru.job4j.chat.model.Room;
 import ru.job4j.chat.service.ChatService;
+
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,10 +41,7 @@ public class MessageController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Message> createNewMessage(@RequestBody Message message) {
-        if (message.getName() == null) {
-            throw new NullPointerException("Field name must not be empty");
-        }
+    public ResponseEntity<Message> createNewMessage(@Valid @RequestBody Message message) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Person person = chatService.findPersonByUsername(username);
         message.setPerson(person);
@@ -50,11 +49,7 @@ public class MessageController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<Void> update(@RequestBody MessageDTO messageDTO) {
-        if (messageDTO.getId() == 0 || messageDTO.getName() == null
-                || messageDTO.getPersonId() == 0 || messageDTO.getRoomId() == 0) {
-            throw new NullPointerException("Fields id, name, personId, roomId must not be empty");
-        }
+    public ResponseEntity<Void> update(@Valid @RequestBody MessageDTO messageDTO) {
         Person person = chatService.findPersonById(messageDTO.getId())
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));

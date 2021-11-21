@@ -16,6 +16,7 @@ import ru.job4j.chat.service.ChatService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -38,10 +39,7 @@ public class UserController {
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<Person> signUp(@RequestBody Person person) {
-        if (person.getUsername() == null || person.getPassword() == null) {
-            throw new NullPointerException("Fields username and password must not be empty!");
-        }
+    public ResponseEntity<Person> signUp(@Valid @RequestBody Person person) {
         person.setPassword(encoder.encode(person.getPassword()));
         person.setRole(chatService.findRoleByName("ROLE_USER"));
         chatService.save(person);
@@ -56,10 +54,7 @@ public class UserController {
     }
 
     @PatchMapping("/")
-    public Person editUser(@RequestBody PersonDTO personDTO) {
-        if (personDTO.getUsername() == null || personDTO.getName() == null) {
-            throw new NullPointerException("Fields username and name must not be empty!");
-        }
+    public Person editUser(@Valid@RequestBody PersonDTO personDTO) {
         Person person = chatService.findPersonByUsername(personDTO.getUsername());
         if (person == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");

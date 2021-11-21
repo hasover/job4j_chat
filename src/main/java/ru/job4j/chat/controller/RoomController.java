@@ -10,6 +10,8 @@ import ru.job4j.chat.model.Person;
 import ru.job4j.chat.model.Room;
 import ru.job4j.chat.model.RoomDTO;
 import ru.job4j.chat.service.ChatService;
+
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -38,20 +40,14 @@ public class RoomController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Room> createNewRoom(@RequestBody Room room) {
-        if (room.getName() == null) {
-            throw new NullPointerException("Filed name must not be empty");
-        }
+    public ResponseEntity<Room> createNewRoom(@Valid @RequestBody Room room) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         room.setPerson(chatService.findPersonByUsername(username));
         return new ResponseEntity<>(chatService.save(room), HttpStatus.CREATED);
     }
 
     @PutMapping("/")
-    public ResponseEntity<Void> update(@RequestBody RoomDTO roomDTO) {
-        if (roomDTO.getId() == 0 || roomDTO.getPersonId() == 0 || roomDTO.getName() == null) {
-            throw new NullPointerException("Fields id, name, personId must not be empty");
-        }
+    public ResponseEntity<Void> update(@Valid @RequestBody RoomDTO roomDTO) {
         Room room = chatService.findRoomById(roomDTO.getId()).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found"));
         Person person = chatService.findPersonById(roomDTO.getPersonId())

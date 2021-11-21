@@ -1,9 +1,16 @@
 package ru.job4j.chat.model;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+
 public class MessageDTO {
+    @Min(value = 1, message = "id must be greater than 0")
     private int id;
+    @NotBlank(message = "name must not be blank")
     private String name;
+    @Min(value = 1, message = "personId must be greater than 0")
     private int personId;
+    @Min(value = 1, message = "roomId must be greater than 0")
     private int roomId;
 
     public int getId() {

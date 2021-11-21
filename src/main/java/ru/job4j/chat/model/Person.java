@@ -2,6 +2,9 @@ package ru.job4j.chat.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.Objects;
 
 @Entity
@@ -10,11 +13,14 @@ public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotBlank(message = "name must not be empty")
     private String name;
     @Column(unique = true)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @NotBlank(message = "username must not be empty")
     private String username;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Size(min = 6, message = "password must be at least 6 characters")
     private String password;
     @ManyToOne
     @JoinColumn(name = "role_id")

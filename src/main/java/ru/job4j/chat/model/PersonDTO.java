@@ -1,7 +1,11 @@
 package ru.job4j.chat.model;
 
+import javax.validation.constraints.NotBlank;
+
 public class PersonDTO {
+    @NotBlank(message = "username must not be blank")
     private String username;
+    @NotBlank(message = "name must not be blank")
     private String name;
 
     public String getUsername() {
