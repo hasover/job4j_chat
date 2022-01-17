@@ -23,7 +23,7 @@
 ![alt text](https://github.com/hasover/job4j_chat/blob/master/images/reg.PNG)
 
 ### 2. Авторизация.
-Пользователь отправляет POST запрос на `localhost:8080/login` с login и password и получает ключ.
+Пользователь отправляет POST запрос на `localhost:8080/login` с username и password и получает ключ.
 Этот ключ отправляется в запросе в блоке HEAD.
 ![alt text](https://github.com/hasover/job4j_chat/blob/master/images/auth.png)
 
